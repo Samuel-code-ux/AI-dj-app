@@ -1,69 +1,75 @@
-song = "";
-song1 ="";
+song1 = "";
 song2 = "";
-leftWristX = 0;
-leftWristY = 0;
-rightWristX = 0;
-righttWristY = 0;
-scoreLeftWrist = 0;
-function preload(){
-song1 = loadSound("music.mp3");
-song2 = loadSound("music2.mp3");
+leftWristx = 0;
+leftWristy = 0;
+rightWristx = 0;
+rightWristy = 0;
+scoreleftWristX = 0;
+var status = "";
+status_right = ""
+scoreRightWristX = 0;
+
+function preload() {
+    song1 = loadSound("music.mp3");
+    song2 = loadSound("music2.mp3");
 }
 
-function setup(){
-    canvas = createCanvas(600,500);
+function setup() {
+    canvas = createCanvas(550, 500);
     canvas.center();
 
     video = createCapture(VIDEO);
     video.hide();
+
     poseNet = ml5.poseNet(video, modelLoaded);
     poseNet.on('pose', gotPoses);
 }
 
-function gotPoses(results){
-    if(results.length > 0){
-        console.log(results);
-        scoreLeftWrist =results[0].pose.keypoints[9].score;
-
-        leftWristX = results[0].pose.leftWrist.x;
-        leftWristY = results[0].pose.leftWrist.y;
-        console.log("leftWristX =" + leftWristX + "leftWristY =" +leftWristY);
-
-        rightWristX = results[0].pose.rightWrist.x;
-        rightWristY = results[0].pose.rightWrist.y;
-        console.log("rightWristX =" + rightWristX + "rightWristY =" + rightWristY);
-
-    }
+function modelLoaded() {
+    console.log("PoseNet is initialized!");
 }
 
-function modelLoaded(){
-    console.log('PoseNet Is Initialized');
-}
+function draw() {
+    image(video, 0, 0, 550, 500);
+    fill("green");
+    stroke("light blue");
 
-function draw(){
-    image(video, 0, 0, 600, 500);
-
-    fill("red");
-    stroke("red");
-    if(scoreLeftWrist > 0.2)
-    {
-        circle(leftWristX,leftWristY,20);
-        InNumberleftWristY = Number(leftWristY);
-        remove_decimal = floor(InNumberleftWristY);
-        volume = remove_decimal/500;
-        document.getElementById("volume").innerHTML = "Volume =" + volume;
-        song.setVolume(volume);
+    var status = song1.isPlaying()
+    if (scoreleftWristX > 0.2) {
+        circle(leftWristx, leftWristy, 20);
         song2.stop();
+
+        if (status == false) {
+            song1.play();
+            document.getElementById("song_name").innerHTML = "Song name: Hedwig's Theme";
+        }
     }
-    if(song1 = false)
-    {
-        circle(leftWristX,leftWristY,20);
-        InNumberleftWristY = Number(leftWristY);
-        remove_decimal = floor(InNumberleftWristY);
-        volume = remove_decimal/500;
-        document.getElementById("volume").innerHTML = "Volume =" + volume;
-        song.setVolume(volume);
-        song1.play();
+
+    status_right = song2.isPlaying()
+    if (scoreRightWristX > 0.2) {
+        circle(rightWristx, rightWristy, 20);
+        song1.stop();
+
+        if (status_right == false) {
+            song2.play();
+            document.getElementById("song_name").innerHTML = "Song name: Peter Pan Theme Song";
+        }
+    }
+}
+
+function gotPoses(results) {
+    if (results.length > 0) {
+        console.log(results);
+        scoreleftWristX = results[0].pose.keypoints[9].score;
+        scoreRightWristX = results[0].pose.keypoints[10].score;
+        console.log("Score Left Wrist X = " + scoreleftWristX + "Score Right Wrist X = " + scoreRightWristX )
+
+        leftWristx = results[0].pose.leftWrist.x;
+        leftWristy = results[0].pose.leftWrist.y;
+        console.log("Left Wrist X = " + leftWristx + " Left Wrist Y = " + leftWristy);
+
+        rightWristx = results[0].pose.rightWrist.x;
+        rightWristy = results[0].pose.rightWrist.y;
+        console.log("Right Wrist X = " + rightWristx + " Right Wrist Y = " + rightWristy);
     }
 }
